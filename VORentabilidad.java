@@ -4,6 +4,9 @@ import org.codehaus.jackson.annotate.JsonProperty;
 
 public class Rentabilidad {
 
+	@JsonProperty(value="nombreCompania")
+	private String nombreCompania;
+	
 	@JsonProperty(value="fechaInicial")
 	private String fechaInicial;
 
@@ -47,7 +50,7 @@ public class Rentabilidad {
 	public Rentabilidad(String fechaInicial, String fechaFinal,
 			Long idEspectaculo, int totalClientes, int totalBoletas, 
 			Long idSitio, char tipo, double proporcion, 
-			int precio, String nombreCategoria, String fecha)
+			int precio, String nombreCategoria, String fecha, String nombreCompania)
 	{
 		this.fechaInicial = fechaInicial;
 		this.fechaFinal = fechaFinal;
@@ -60,6 +63,7 @@ public class Rentabilidad {
 		this.precio = precio;
 		this.nombreCategoria = nombreCategoria;
 		this.fecha = fecha;
+		this.nombreCompania = nombreCompania;
 				
 	}
 
@@ -149,6 +153,14 @@ public class Rentabilidad {
 
 	public void setFecha(String fecha) {
 		this.fecha = fecha;
+	}
+
+	public String getNombreCompania() {
+		return nombreCompania;
+	}
+
+	public void setNombreCompania(String nombreCompania) {
+		this.nombreCompania = nombreCompania;
 	}
 	
 	
