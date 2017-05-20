@@ -1,5 +1,3 @@
-//Requerimiento de consulta 14: 
-
 package vos;
 
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -33,8 +31,8 @@ public class Rentabilidad {
 	@JsonProperty(value="precio")
 	private int precio;
 
-	@JsonProperty(value="idCategoria")
-	private Long idCat;
+	@JsonProperty(value="nombreCategoria")
+	private String nombreCategoria;
 	
 	@JsonProperty(value="fecha")
 	private String fecha;
@@ -49,7 +47,7 @@ public class Rentabilidad {
 	public Rentabilidad(String fechaInicial, String fechaFinal,
 			Long idEspectaculo, int totalClientes, int totalBoletas, 
 			Long idSitio, char tipo, double proporcion, 
-			int precio, Long idCat, String fecha)
+			int precio, String nombreCategoria, String fecha)
 	{
 		this.fechaInicial = fechaInicial;
 		this.fechaFinal = fechaFinal;
@@ -60,7 +58,7 @@ public class Rentabilidad {
 		this.tipo = tipo;
 		this.proporcion = proporcion;
 		this.precio = precio;
-		this.idCat = idCat;
+		this.nombreCategoria = nombreCategoria;
 		this.fecha = fecha;
 				
 	}
@@ -137,12 +135,12 @@ public class Rentabilidad {
 		this.precio = precio;
 	}
 
-	public Long getIdCat() {
-		return idCat;
+	public String getNombreCategoria() {
+		return nombreCategoria;
 	}
 
-	public void setIdCat(Long idCat) {
-		this.idCat = idCat;
+	public void setNombreCategoria(String nombreCategoria) {
+		this.nombreCategoria = nombreCategoria;
 	}
 
 	public String getFecha() {
@@ -151,18 +149,6 @@ public class Rentabilidad {
 
 	public void setFecha(String fecha) {
 		this.fecha = fecha;
-	}
-	
-	public String toString()
-	{
-		return  "Fecha inicial: " + fechaInicial +"\n"
-				+ "Fecha final: " + fechaFinal + "\n"
-						+ "idEspectaculo: "+ idEspectaculo+"\n"
-								+ "total clientes: " + totalClientes + "\n"
-										+ "total boletas: " + totalBoletas + "\n"
-												+ "proporción: " + proporcion + "\n"
-														+ "precio: " + precio +"\n"
-																+ "fecha: " + fecha+" .";
 	}
 	
 	
