@@ -51,6 +51,9 @@ public class RetirarCompania2PC {
 			utx.begin();
 			
 			
+				/*
+				*Primera conexión con l bd 1
+				*/
 			
 			try {
 				Statement st=conn1.createStatement();
@@ -109,6 +112,9 @@ public class RetirarCompania2PC {
 			} catch (SQLException e) {
 				utx.setRollbackOnly();
 			}
+				/*
+				*Segunda conexión con la bd 2
+				*/
 
 			try {
 				Statement st=conn2.createStatement();
@@ -122,6 +128,9 @@ public class RetirarCompania2PC {
 				utx.setRollbackOnly();
 			}
 
+				/*
+				*Tercera conexión con la bd 3
+				*/
 			try {
 				Statement st=conn3.createStatement();
 				String sql="";
