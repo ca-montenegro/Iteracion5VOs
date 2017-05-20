@@ -10,9 +10,9 @@ Return List<VOBoleta>:
 
 ----------------------------------------
 Requerimiento Funcional 16.
-Cancelar un espectaculo. Se cancela un espectaculo y sus funciones haciendo la devolución de las boletas vendidas para esas funciones. 
+Retirar compañia. Se retira una compañia y sus funciones haciendo la devolución de las boletas vendidas para esas funciones. 
 
-Parametros: idCompania, fechaConsulta
+Parametros: idCompania
 
 Return List<notaDebito>(RF14):
 ----------------------------------------
