@@ -158,6 +158,96 @@ public class RetirarCompania2PC {
 		}
 		
 	}
+	
+	public List<Funcion> getFunciones() {
+		List<Funcion> funciones = new ArrayList<Funcion>();
+		
+		try {
+			UserTransaction utx = (UserTransaction) context.lookup("/UserTransaction");
+			try{
+			iniciarConexiones();
+			utx.begin();
+			
+			
+			
+			try {
+				Statement st=conn1.createStatement();
+				
+				int num=0;
+				
+				String sql="SELECT F.ID AS FID, E.ID AS EID, E.NOMBRE AS ENOMBRE, E.DURACION AS EDURACION,E.IDIOMA AS EIDIOMA, E.COSTO AS ECOSTO, E.DESCRIPCION AS EDESCRIPCION, "
+						+ "F.FECHA AS FFECHA, F.REALIZADO AS FREALIZADO, S.ID AS SID, S.NOMBRE AS SNOMBRE, S.ABIERTO AS SABIERTO "
+						+ " FROM (FUNCIONES F LEFT JOIN ESPECTACULOS E ON (F.IDESPECTACULO=E.ID) "
+						+ "LEFT JOIN PRESENTAN PRE ON PRE.IDESPECTACULO=E.ID "
+						+ "LEFT JOIN COMPANIASTEATRO C ON PRE.IDCOMPANIA=C.ID "
+						+ "LEFT JOIN REQUIERE REQ ON REQ.IDESPECTACULO=E.ID "
+						+ "LEFT JOIN REQUERIMIENTOSTECNICOS R ON REQ.IDREQUERIMIENTO=R.ID "
+						+ "LEFT JOIN HACEPARTE H ON H.IDESPECTACULO= E.ID "
+						+ "LEFT JOIN CATEGORIAs CAT ON CAT.ID=H.IDCATEGORIA "
+						+ "LEFT JOIN SITIOS S ON S.ID=F.IDSITIO "
+						+ "LEFT JOIN ESPARA ON ESPARA.IDSITiO=S.ID "
+						+ "LEFT JOIN APTOS ON APTOS.ID=ESPARA.IDAPTOS) ";
+				ResultSet result = st.executeQuery(sql);
+				while (result.next()){
+					Funcion funcion = new Funcion();
+					funcion.setId(Long.parseLong(result.getString("FID")));
+					funcion.setEspectaculo(new Espectaculo(Long.parseLong(result.getString("EID")),result.getString("ENOMBRE"), Integer.parseInt(result.getString("EDURACION")),  result.getString("EIDIOMA"),  Double.parseDouble(result.getString("ECOSTO")),  result.getString("EDESCRIPCION"), null,  null,  null));
+					funcion.setFecha((result.getString("FFECHA")));
+					funcion.setRealizado(result.getString("FREALIZADO")=="V");
+					funcion.setSitio(new Sitio( Long.parseLong(result.getString("SID")), result.getString("SNOMBRE"), result.getString("SABIERTO")=="V", null, null, null, null, null, null, null, null));
+
+					funciones.add(funcion);
+				}
+				
+				
+				st.close();
+	
+				
+			} catch (SQLException e) {
+				utx.setRollbackOnly();
+			}
+
+			try {
+				Statement st=conn2.createStatement();
+				String sql="";
+				System.out.println(sql);
+				int num=st.executeUpdate(sql);
+				System.out.println("Se modificaron "+num+" tuplas-Conexión 2");
+				st.close();
+				
+			} catch (SQLException e) {
+				utx.setRollbackOnly();
+			}
+
+			try {
+				Statement st=conn3.createStatement();
+				String sql="";
+				System.out.println(sql);
+				int num=st.executeUpdate(sql);
+				System.out.println("Se modificaron "+num+" tuplas-Conexión 3");
+				st.close();
+				
+			} catch (SQLException e) {
+				utx.setRollbackOnly();
+			}
+			
+			utx.commit();
+			cerrarConexiones();
+			
+			
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+		} catch (NamingException e) {
+			
+			e.printStackTrace();
+		}
+		
+		return funciones;
+		
+	}
 
 	private void cerrarConexiones() throws SQLException {
 		conn1.close();
