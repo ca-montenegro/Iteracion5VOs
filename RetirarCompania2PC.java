@@ -19,7 +19,7 @@ import javax.transaction.UserTransaction;
 import vos.VOFuncion;
 import vos.VORentabilidad;
 
-public class RetirarCompania2PC {
+public class TwoPhaseCommit {
 
 	Hashtable<String, String> env;
 	InitialContext context;
@@ -30,7 +30,7 @@ public class RetirarCompania2PC {
 	Connection conn2;
 	Connection conn3;
 
-	public RetirarCompania2PC() throws NamingException {
+	public TwoPhaseCommit() throws NamingException {
 		env = new Hashtable<String, String>();
 		env.put(Context.INITIAL_CONTEXT_FACTORY, "org.jnp.interfaces.NamingContextFactory");
 		env.put(Context.PROVIDER_URL, "jnp://localhost:1099");
@@ -247,12 +247,54 @@ public class RetirarCompania2PC {
 
 			try {
 				Statement st=conn3.createStatement();
-				String sql="";
+				String sql="select id_compa, id_funcion from compania natural join"
+						+ "(select * from funcion inner join espectaculo on "
+						+ "funcion.id_espectaculo  = espectaculo.id_espec) where id_compa = " + idCompania;
 				System.out.println(sql);
-				int num=st.executeUpdate(sql);
+				ResultSet rst = st.executeQuery(sql);
+				int num = 0;
+				while (rst.next())
+				{
+					Long idFuncion = Long.parseLong(rst.getString("id_funcion"));
+
+					ArrayList<String> idsBoletas = new ArrayList<>();
+
+					String sql2 = "select * from boleta where id_funcion = " + idFuncion + " order by id_boleta";
+					System.out.println("SQL stmt: " + sql2);
+
+					ResultSet rs = st.executeQuery(sql2);
+					while(rs.next())
+					{
+						Long idBoleta = Long.parseLong(rs.getString("ID_BOLETA"));
+						Long idCliente = Long.parseLong(rs.getString("ID_CLIENTE"));
+						idsBoletas.add(idBoleta + ","+idCliente);	
+					}
+					for(String idBoletaCliente: idsBoletas)
+					{
+						Long idBoleta = Long.parseLong(idBoletaCliente.split(",")[0]);
+						Long idUsuario = Long.parseLong(idBoletaCliente.split(",")[1]);
+						String sql3 = "update boleta set estado = 'D' where id_boleta = "+idBoleta;
+						System.out.println("SQL stmt: "+ sql3);
+
+						st.executeUpdate(sql3);
+						String sql4 = "insert into devolucion values((devolucion_seq2.nextval), "  + idBoleta + "," + idUsuario +")";
+						String key[] = {"ID_DEVOLUCION"};
+						Statement prepStmt2 = conn3.prepareStatement(sql4,key);
+						prepStmt2.executeUpdate(sql4);
+						System.out.println("SQL stmt:" + sql4);
+						ResultSet rsInsert = prepStmt2.getGeneratedKeys();
+						Long idDevolucion = null;
+						if (rsInsert.next()) {
+							idDevolucion = rsInsert.getLong(1);
+							System.out.println(idDevolucion);
+							num++;
+						}
+
+					}
+				}
 				System.out.println("Se modificaron "+num+" tuplas-Conexión 3");
 				st.close();
-				
+
 			} catch (SQLException e) {
 				utx.setRollbackOnly();
 			}
