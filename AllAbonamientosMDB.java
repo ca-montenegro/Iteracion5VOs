@@ -41,7 +41,7 @@ import com.rabbitmq.jms.admin.RMQDestination;
 import dtm.FestivAndesDistributed;
 
 import vos.Abonamiento;
-import vos.Boleta;
+import vos.VOBoleta;
 import vos.ExchangeMsg;
 import vos.ExchangeMsgAbonamiento;
 
@@ -63,7 +63,7 @@ public class AllAbonamientosMDB implements MessageListener, ExceptionListener
 	private Topic globalTopic;
 	private Topic localTopic;
 	
-	private List<Boleta> answer = new ArrayList<Boleta>();
+	private List<VOBoleta> answer = new ArrayList<VOBoleta>();
 	
 	public AllAbonamientosMDB(TopicConnectionFactory factory, InitialContext ctx) throws JMSException, NamingException 
 	{	
@@ -89,7 +89,7 @@ public class AllAbonamientosMDB implements MessageListener, ExceptionListener
 		topicConnection.close();
 	}
 	
-	public ArrayList<Boleta> getRemoteAbonamiento(Abonamiento abonamiento) throws JsonGenerationException, JsonMappingException, JMSException, IOException, NonReplyException, InterruptedException, NoSuchAlgorithmException
+	public ArrayList<VOBoleta> getRemoteAbonamiento(Abonamiento abonamiento) throws JsonGenerationException, JsonMappingException, JMSException, IOException, NonReplyException, InterruptedException, NoSuchAlgorithmException
 	{
 		answer.clear();
 		String id = APP+""+System.currentTimeMillis();
@@ -115,7 +115,7 @@ public class AllAbonamientosMDB implements MessageListener, ExceptionListener
 		
 		if(answer.isEmpty())
 			throw new NonReplyException("Non Response");
-		ArrayList<Boleta>  res = new ArrayList<Boleta>(answer);
+		ArrayList<VOBoleta>  res = new ArrayList<VOBoleta>(answer);
         return res;
 	}
 	
@@ -156,14 +156,14 @@ public class AllAbonamientosMDB implements MessageListener, ExceptionListener
 					 
 					Abonamiento abParam = (Abonamiento) ex.getPayload();
 					Long idUsuario = abParam.getIdUsuario();
-					ArrayList<Boleta> abonamientoLocal = dtm.getLocalAbonamientos(idUsuario,abParam);
+					ArrayList<VOBoleta> abonamientoLocal = dtm.getLocalAbonamientos(idUsuario,abParam);
 					String payload = mapper.writeValueAsString(abonamientoLocal);
 					Topic t = new RMQDestination("", "abonamiento.test", ex.getRoutingKey(), "", false);
 					sendMessage(abonamientoLocal, REQUEST_ANSWER, t, id);
 				}
 				else if(ex.getStatus().equals(REQUEST_ANSWER))
 				{
-					ArrayList<Boleta> ab = mapper.readValue(ex.getPayload().toString(), ArrayList.class);
+					ArrayList<VOBoleta> ab = mapper.readValue(ex.getPayload().toString(), ArrayList.class);
 					answer.addAll(ab);
 				}
 			}
