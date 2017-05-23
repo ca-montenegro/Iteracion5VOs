@@ -1,10 +1,11 @@
-package jms;
+﻿package jms;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Date;
 import java.util.Hashtable;
 
 import javax.naming.Context;
@@ -12,6 +13,9 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 import javax.transaction.UserTransaction;
+
+import vos.Funcion;
+import vos.NotaDebito;
 
 public class RetirarCompania2PC {
 
@@ -52,7 +56,7 @@ public class RetirarCompania2PC {
 			
 			
 				/*
-				*Primera conexión con l bd 1
+				*Primera conexiÃ³n con l bd 1
 				*/
 			
 			try {
@@ -89,7 +93,7 @@ public class RetirarCompania2PC {
 					}
 
 				}
-				if (!exist) throw new Exception("La funci�n no existe o ya fue realizada.");
+				if (!exist) throw new Exception("La funciï¿½n no existe o ya fue realizada.");
 				sql="DELETE FROM BOLETAS WHERE idFuncion="+id;
 				System.out.println(sql);
 				num+=st.executeUpdate(sql);
@@ -105,7 +109,7 @@ public class RetirarCompania2PC {
 				System.out.println(sql);
 				num+=st.executeUpdate(sql);
 		
-				System.out.println("Se modificaron "+num+" tuplas-Conexión 1");
+				System.out.println("Se modificaron "+num+" tuplas-ConexiÃ³n 1");
 				st.close();
 	
 				
@@ -113,30 +117,62 @@ public class RetirarCompania2PC {
 				utx.setRollbackOnly();
 			}
 				/*
-				*Segunda conexión con la bd 2
+				*Segunda conexiÃ³n con la bd 2
 				*/
 
 			try {
+				
 				Statement st=conn2.createStatement();
-				String sql="";
+				String sql = "UPDATE COMPANIA_TEATRO SET ESTADO = 0";
+				sql += " WHERE ID = " + idCompania;
 				System.out.println(sql);
 				int num=st.executeUpdate(sql);
-				System.out.println("Se modificaron "+num+" tuplas-Conexión 2");
+				System.out.println("Se modificaron "+num+" tuplas-ConexiÃ³n 2");
 				st.close();
+
+				String sql2 = "SELECT * FROM BOLETA BOL INNER JOIN (SELECT * FROM (SELECT ID AS IDFUN  FROM(SELECT ID_ESPECTACULO FROM COMPANIA_ESPECTACULO E WHERE E.ID_COMPANIA = 1) "
+						+ "NATURAL JOIN FUNCION E)IDFUN ) ON BOL.ID_FUNCION= IDFUN";
+				Statement prepStmt2 = conn2.createStatement();
+				ResultSet rs =prepStmt2.executeQuery(sql2);
+				System.out.println(sql2);
+				try{
+					while (rs.next()) {
+						long codigo = 1;
+						long idLocalidad = rs.getLong("ID_LOCALIDAD");
+						long idUbicacion = rs.getLong("UBICACION");
+						long idFuncion = rs.getLong("ID_FUNCION");
+						long idCliente = rs.getLong("ID_CLIENTE");
+
+						String sql3 = "UPDATE BOLETA SET ESTADO = 3";
+						sql3 += " WHERE UBICACION ='" + idUbicacion+"'";
+						sql3 += " AND ID_LOCALIDAD = " + idLocalidad;
+						sql3 += " AND ID_FUNCION = " + idFuncion;
+
+						Statement prepStmt3 = conn2.createStatement();
+						
+						prepStmt3.executeQuery(sql3);
+						prepStmt3.close();
+					}
+				}
+				finally {
+					rs.close();
+					prepStmt2.close();
+				}
+				
 				
 			} catch (SQLException e) {
 				utx.setRollbackOnly();
 			}
 
 				/*
-				*Tercera conexión con la bd 3
+				*Tercera conexiÃ³n con la bd 3
 				*/
 			try {
 				Statement st=conn3.createStatement();
 				String sql="";
 				System.out.println(sql);
 				int num=st.executeUpdate(sql);
-				System.out.println("Se modificaron "+num+" tuplas-Conexión 3");
+				System.out.println("Se modificaron "+num+" tuplas-ConexiÃ³n 3");
 				st.close();
 				
 			} catch (SQLException e) {
@@ -212,7 +248,7 @@ public class RetirarCompania2PC {
 				String sql="";
 				System.out.println(sql);
 				int num=st.executeUpdate(sql);
-				System.out.println("Se modificaron "+num+" tuplas-Conexión 2");
+				System.out.println("Se modificaron "+num+" tuplas-ConexiÃ³n 2");
 				st.close();
 				
 			} catch (SQLException e) {
@@ -224,7 +260,7 @@ public class RetirarCompania2PC {
 				String sql="";
 				System.out.println(sql);
 				int num=st.executeUpdate(sql);
-				System.out.println("Se modificaron "+num+" tuplas-Conexión 3");
+				System.out.println("Se modificaron "+num+" tuplas-ConexiÃ³n 3");
 				st.close();
 				
 			} catch (SQLException e) {
@@ -271,8 +307,8 @@ public class RetirarCompania2PC {
 					System.out.println(sql);
 					recursos.add(prepStmt);
 					ResultSet res = prepStmt.executeQuery();
-					if(!res.next())throw new Exception("La compa��a especificada no existe");
-					if(res.getLong("IDREPRESENTATNE")!=idRepresentante)throw new Exception("El operario especificado no tiene los permisos sobre esta compa��a");
+					if(!res.next())throw new Exception("La compaï¿½ï¿½a especificada no existe");
+					if(res.getLong("IDREPRESENTATNE")!=idRepresentante)throw new Exception("El operario especificado no tiene los permisos sobre esta compaï¿½ï¿½a");
 				}
 
 				sql = "SELECT ID, NOMBRE FROM COMPANIASTEATRO WHERE ID="+id;
@@ -280,7 +316,7 @@ public class RetirarCompania2PC {
 				System.out.println(sql);
 				recursos.add(prepStmt);
 				ResultSet res = prepStmt.executeQuery();
-				if(!res.next())throw new Exception("La compa��a especificada no existe");
+				if(!res.next())throw new Exception("La compaï¿½ï¿½a especificada no existe");
 				consul.setId(res.getLong("ID"));
 				consul.setNombre(res.getString("NOMBRE"));
 
@@ -384,7 +420,7 @@ public class RetirarCompania2PC {
 				String sql="";
 				System.out.println(sql);
 				int num=st.executeUpdate(sql);
-				System.out.println("Se modificaron "+num+" tuplas-Conexión 2");
+				System.out.println("Se modificaron "+num+" tuplas-ConexiÃ³n 2");
 				st.close();
 				
 			} catch (SQLException e) {
@@ -396,7 +432,7 @@ public class RetirarCompania2PC {
 				String sql="";
 				System.out.println(sql);
 				int num=st.executeUpdate(sql);
-				System.out.println("Se modificaron "+num+" tuplas-Conexión 3");
+				System.out.println("Se modificaron "+num+" tuplas-ConexiÃ³n 3");
 				st.close();
 				
 			} catch (SQLException e) {
