@@ -2,7 +2,7 @@ package vos;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 
-public class Rentabilidad {
+public class VORentabilidad {
 
 	@JsonProperty(value="nombreCompania")
 	private String nombreCompania;
@@ -40,14 +40,14 @@ public class Rentabilidad {
 	@JsonProperty(value="fecha")
 	private String fecha;
 
-	public Rentabilidad(@JsonProperty(value="fechaInicial") String fechaInicial,
+	public VORentabilidad(@JsonProperty(value="fechaInicial") String fechaInicial,
 			@JsonProperty(value="fechaFinal") String fechaFinal)
 	{
 		this.fechaInicial = fechaInicial;
 		this.fechaFinal = fechaFinal;
 	}
 	
-	public Rentabilidad(String fechaInicial, String fechaFinal,
+	public VORentabilidad(String fechaInicial, String fechaFinal,
 			Long idEspectaculo, int totalClientes, int totalBoletas, 
 			Long idSitio, char tipo, double proporcion, 
 			int precio, String nombreCategoria, String fecha, String nombreCompania)
