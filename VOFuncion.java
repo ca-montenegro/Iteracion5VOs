@@ -51,7 +51,7 @@ public class VOFuncion {
 		this.id=id;
 		this.fecha=(fecha);
 		nombreSitio=sitio;
-		nombreEspectaculo=especatulo;
+		nombreEspectaculo=espectaculo;
 	}
 
 	public VOFuncion() {
